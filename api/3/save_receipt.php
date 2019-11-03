@@ -87,7 +87,14 @@ $ret['data']['img_url'] = $img_url;
 
 output($ret);
 
-
+/**
+ * 传送到七牛
+ * @param $post_string
+ * @param $filename
+ * @param $upToken
+ *
+ * @return mixed
+ */
 function request_qiniu_curl($post_string, $filename, $upToken) {
 
     $headers = array();
@@ -109,4 +116,31 @@ function request_qiniu_curl($post_string, $filename, $upToken) {
     curl_close($ch);
 
     return json_decode($data, true);
+}
+
+
+function sendRemoteReview($id, $img_url, $openid) {
+    $ts = time();
+    
+    $data = [
+        'DateStamp'      => $ts,
+        'OpenId'         => $openid,
+        'OrderCode'      => $id,
+        'Secret'         => API_SECRET,
+        'TicketFileName' => $img_url,
+    ];
+    
+    $sign = strtoupper(md5(http_build_query($data)));
+    
+    unset($data['Secret'], $data['TicketFileName']);
+    $data['Sign']     = $sign;
+    $data['FileName'] = $img_url;
+    
+    //print_r($data);exit;
+    
+    $resp = curlPost('http://yfdsapi.esoshine.com/api/PhotoReturn/PhotoRecord', $data);
+    // exit($resp);
+    $result = json_encode($resp, true);
+    // var_dump($result);
+    return isset($result['Success']) && $result['Success'] == 'true' ? true : false;
 }

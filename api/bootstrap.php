@@ -14,6 +14,7 @@ header('Access-Control-Allow-Headers: Content-Type,Content-Length,Accept-Encodin
 define('BASE_PATH', __DIR__);
 
 define('SESSION_PREFIX', 'watsons_');
+define('API_SECRET', 'ysDFD34iu7JHJS');
 
 require BASE_PATH.'/vendor/autoload.php';
 require BASE_PATH.'/config.php';

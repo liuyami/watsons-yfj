@@ -3,6 +3,23 @@
  * 自定义函数
  */
 
+
+/**
+ * 获取 post 参数; 在 content_type 为 application/json 时，自动解析 json
+ * @return array
+ */
+function initPostData()
+{
+    if (empty($_POST) && false !== strpos($_SERVER['CONTENT_TYPE'], 'application/json')) {
+        $content = file_get_contents('php://input');
+        $post    = (array)json_decode($content, true);
+    } else {
+        $post = $_POST;
+    }
+    return $post;
+}
+
+
 function output($data, $format='json') {
     
     if($format == 'json') {
@@ -185,4 +202,141 @@ function imgToBase64($url, $filetype='jpeg') {
     } 
 
     return false;
+}
+
+/**
+ * 是否为一个合法的email
+ * @param sting $email
+ * @return boolean
+ */
+function is_email($email){
+    if (filter_var ($email, FILTER_VALIDATE_EMAIL )) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * 是否为一个合法的url
+ * @param string $url
+ * @return boolean
+ */
+function is_url($url){
+    if (filter_var ($url, FILTER_VALIDATE_URL )) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/**
+ * 是否为整数
+ * @param int $number
+ * @return boolean
+ */
+function is_inter($number){
+    if(preg_match('/^[-\+]?\d+$/',$number)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/**
+ * 是否为正整数
+ * @param int $number
+ * @return boolean
+ */
+function is_positive_number($number){
+    if(ctype_digit ($number)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/**
+ * 验证日期格式是否正确
+ * @param string $date
+ * @param string $format
+ * @return boolean
+ */
+function is_date($date,$format='Y-m-d'){
+    $t = date_parse_from_format($format,$date);
+    if(empty($t['errors'])){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/**
+ * 是否为小数
+ * @param float $number
+ * @return boolean
+ */
+function is_decimal($number){
+    if(preg_match('/^[-\+]?\d+(\.\d+)?$/',$number)){
+        return true;
+    }else{
+        return false;
+    }
+}
+/**
+ * 是否为正小数
+ * @param float $number
+ * @return boolean
+ */
+function is_positive_decimal($number){
+    if(preg_match('/^\d+(\.\d+)?$/',$number)){
+        return true;
+    }else{
+        return false;
+    }
+}
+
+/**
+ * curl POST
+ *
+ * @param   string  url
+ * @param   array   数据
+ * @return  string
+ */
+function curlPost($url, $data = []) {
+    
+    $ch = curl_init($url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    $output = curl_exec($ch);
+    curl_close($ch);
+    
+    return $output;
+}
+
+/**
+ * PHP发送Json对象数据
+ *
+ * @param $url 请求url
+ * @param $jsonStr 发送的json字符串
+ * @return array
+ */
+function http_post_json($url, $jsonStr)
+{
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $jsonStr);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+                       'Content-Type: application/json; charset=utf-8',
+                       'Content-Length: ' . strlen($jsonStr)
+                   )
+    );
+    $response = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    
+    return $response;
 }
