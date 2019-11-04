@@ -45,11 +45,18 @@ if($self_sign != $sign) {
 }
 
 
+if (time() - $timestamp > 120) {
+    $ret['errcode'] = 5;
+    $ret['errmsg'] = '时间戳超时';
+    output($ret);
+}
+
+
 // 查找账号是否存在
 $db->where("openid", $openid);
 $user = $db->getOne("users");
 if(!$user) {
-    $ret['errcode'] = 5;
+    $ret['errcode'] = 6;
     $ret['errmsg'] = '账户不存在';
     output($ret);
 }
@@ -60,7 +67,7 @@ if($db->update('users', ['has_wish' => 1])) {
     $ret['errmsg'] = '更新成功';
     output($ret);
 } else {
-    $ret['errcode'] = 6;
+    $ret['errcode'] = 7;
     $ret['errmsg'] = '更新失败，请稍后在试';
     output($ret);
 }

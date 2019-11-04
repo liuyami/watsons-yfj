@@ -59,6 +59,12 @@ if($self_sign != $sign) {
     output($ret);
 }
 
+if (time() - $timestamp > 120) {
+    $ret['errcode'] = 7;
+    $ret['errmsg'] = '时间戳超时';
+    output($ret);
+}
+
 
 
 // 查找账号是否存在
@@ -67,7 +73,7 @@ $db->where("openid", $openid);
 $data = $db->getOne("receipts");
 
 if(!$data) {
-    $ret['errcode'] = 7;
+    $ret['errcode'] = 8;
     $ret['errmsg'] = '订单不存在';
     output($ret);
 }
@@ -79,7 +85,7 @@ if($db->update('receipts', ['status_id' => $review_status])) {
     $ret['errmsg'] = '更新成功';
     output($ret);
 } else {
-    $ret['errcode'] = 8;
+    $ret['errcode'] = 9;
     $ret['errmsg'] = '更新失败，请稍后在试';
     output($ret);
 }

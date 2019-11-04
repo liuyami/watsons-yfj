@@ -77,6 +77,17 @@ if(!$newid) {
 
 // TODO  传递到第三方审核平台
 
+if(!sendRemoteReview($newid, $img_url, $openid )) {
+    
+    /** 删除记录 */
+    $db->where('id', $newid);
+    $db->delete('receipts');
+        
+    $ret['errcode'] = 6;
+    $ret['errmsg'] = '投递到第三方检测机构失败';
+    output($ret);
+}
+
 
 $ret['errcode'] = 0;
 $ret['errmsg'] = '保存成功';
@@ -121,26 +132,19 @@ function request_qiniu_curl($post_string, $filename, $upToken) {
 
 function sendRemoteReview($id, $img_url, $openid) {
     $ts = time();
+    $query_str = "DateStamp={$ts}&OpenId={$openid}&OrderCode={$id}&Secret=".API_SECRET."&TicketFileName={$img_url}";
     
-    $data = [
-        'DateStamp'      => $ts,
-        'OpenId'         => $openid,
-        'OrderCode'      => $id,
-        'Secret'         => API_SECRET,
-        'TicketFileName' => $img_url,
-    ];
+    $sign = strtoupper(md5($query_str));
     
-    $sign = strtoupper(md5(http_build_query($data)));
+    $data['DateStamp'] = $ts;
+    $data['OpenId']    = $openid;
+    $data['OrderCode'] = $id;
+    $data['Sign']      = $sign;
+    $data['FileName']  = $img_url;
     
-    unset($data['Secret'], $data['TicketFileName']);
-    $data['Sign']     = $sign;
-    $data['FileName'] = $img_url;
-    
-    //print_r($data);exit;
-    
-    $resp = curlPost('http://yfdsapi.esoshine.com/api/PhotoReturn/PhotoRecord', $data);
-    // exit($resp);
-    $result = json_encode($resp, true);
-    // var_dump($result);
-    return isset($result['Success']) && $result['Success'] == 'true' ? true : false;
+    $resp = http_post_json('http://yfdsapi.esoshine.com/api/PhotoReturn/PhotoRecord', json_encode($data));
+    $result = json_decode($resp, true);
+    //print_r($result);
+    // return $result;
+    return isset($result['ReturnCode']) && (string)$result['ReturnCode'] == '200000' ? true : false;
 }
