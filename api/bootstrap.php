@@ -31,4 +31,13 @@ $db = new MysqliDb ([
     'prefix' => '',
     'charset' => 'utf8mb4'
 ]);
+/*$db = new MysqliDb ([
+    'host' => '127.0.0.1',
+    'username' => 'root',
+    'password' => '2000',
+    'db'=> 'watsons',
+    'port' => 3306,
+    'prefix' => '',
+    'charset' => 'utf8mb4'
+]);*/
 
