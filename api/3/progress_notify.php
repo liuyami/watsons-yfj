@@ -9,7 +9,10 @@ $post_data = initPostData();
 
 $progress  = isset($post_data['progress']) && is_numeric($post_data['progress']) ? intval($post_data['progress']) : null;
 $timestamp = isset($post_data['timestamp']) && is_numeric($post_data['timestamp']) ? intval($post_data['timestamp']) : null;
+
+
 $sign      = isset($post_data['sign']) ? trim($post_data['sign']) : null;
+
 
 if(!$progress){
     $ret['errcode'] = 1;
@@ -28,7 +31,6 @@ if(!$sign){
     $ret['errmsg'] = '签名不能为空';
     output($ret);
 }
-
 $sign_arr = [
     'progress'  => $progress,
     'timestamp' => $timestamp,

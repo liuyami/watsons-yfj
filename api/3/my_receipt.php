@@ -10,7 +10,6 @@ if(!$openid){
     output($ret);
 }
 
-
 // 查找账号是否存在
 $db->where("openid", $openid);
 $user = $db->getOne("users");
@@ -30,6 +29,6 @@ $db->orderBy('id','DESC');
 $ret['errcode'] = 0;
 $ret['errmsg'] = 'success';
 $ret['data']['has_wish'] = $has_wish;
-$ret['data']['receipts'] = $db->get('receipts', null, 'id, img_url, status_id');
+$ret['data']['receipts'] = $db->get('receipts', null, 'id, img_url, status_id, photo_url');
 
 output($ret);

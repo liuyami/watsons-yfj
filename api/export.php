@@ -1,5 +1,6 @@
 <?php
 include 'bootstrap.php';
+
 include_once("libs/xlsxwriter.class.php");
 
 $writer = new XLSXWriter();
@@ -30,6 +31,7 @@ $writer->writeToFile($file);
 //header("location:{$file_name}");
 
 if (file_exists($file)) {
+
     header('Content-Description: File Transfer');
     header('Content-Type: application/octet-stream');
     header('Content-Disposition: attachment; filename="'.basename($file).'"');
@@ -37,6 +39,7 @@ if (file_exists($file)) {
     header('Cache-Control: must-revalidate');
     header('Pragma: public');
     header('Content-Length: ' . filesize($file));
+
     readfile($file);
     unlink($file);
     exit;

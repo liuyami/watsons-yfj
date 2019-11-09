@@ -17,13 +17,11 @@ if(!$openid){
     $ret['errmsg'] = 'OpenID不能为空';
     output($ret);
 }
-
 if(!$timestamp){
     $ret['errcode'] = 2;
     $ret['errmsg'] = '时间戳不能为空且只能是数字';
     output($ret);
 }
-
 if(!$sign){
     $ret['errcode'] = 3;
     $ret['errmsg'] = '签名不能为空';
@@ -35,6 +33,7 @@ $sign_arr = [
     'timestamp' => $timestamp,
     'secret' => API_SECRET
 ];
+
 
 $self_sign = strtoupper(md5(http_build_query($sign_arr)));
 

@@ -1,24 +1,15 @@
 <?php
-/**
- * 创建绘马
- */
+
 require '../bootstrap.php';
 
+//$_POST = json_decode(file_get_contents('php://input'), true);
 
+$base64 = isset($_REQUEST['img']) ? trim($_REQUEST['img']) : null;
+$id = isset($_REQUEST['id']) ? trim($_REQUEST['id']) : null;
 
-$openid  = isset($_SESSION[SESSION_PREFIX.'openid']) ? trim($_SESSION[SESSION_PREFIX.'openid']) : "oo0SAv2keF4WpbKuAhsl7s1d6Trk";
-
-$content = isset($_REQUEST['content']) ? trim($_REQUEST['content']): null;
-
-
-$base64  = isset($_REQUEST['img']) ? trim($_REQUEST['img']) : null;
-
-$qr_code  = isset($_REQUEST['qr_code']) ? trim($_REQUEST['qr_code']) : null;
-
-
-if(!$openid){
+if(!$id){
     $ret['errcode'] = 1;
-    $ret['errmsg'] = 'OpenID不能为空';
+    $ret['errmsg'] = 'ID不能为空';
     output($ret);
 }
 
@@ -27,30 +18,7 @@ if(!$base64){
     $ret['errmsg'] = '图像地址不正确';
     output($ret);
 }
-if(!$content){
-    $ret['errcode'] = 3;
-    $ret['errmsg'] = '文案不能为空';
-    output($ret);
-}
-if(!$qr_code){
-    $ret['errcode'] = 7;
-    $ret['errmsg'] = 'qr_code不能为空';
-    output($ret);
-}
 
-
-/**
- * 先判断用户是否存在
- */
-$results = $db
-    ->where('openid', $openid)
-    ->get('horse');
-//用户不存在 返回空数组
-if(!empty($results)){
-    $ret['errcode'] = 4;
-    $ret['errmsg'] = '该用户已经绘制过了';
-    output($ret);
-}
 
 /**
  * 保存图片到七牛
@@ -61,29 +29,17 @@ $base64 = str_replace('data:image/jpg;base64,', '', $base64);
 $base64 = str_replace('data:image/jpeg;base64,', '', $base64);
 
 
-
-$qr_code = str_replace('data:image/png;base64,', '', $qr_code);
-$qr_code = str_replace('data:image/jpg;base64,', '', $qr_code);
-$qr_code = str_replace('data:image/jpeg;base64,', '', $qr_code);
-
 use \Qiniu\Auth;
 
 $auth = new Auth($cfg['qiniu']['ak'], $cfg['qiniu']['sk']);
 
 $expires = 3600;
-
 $filename = base64_encode('watsons/'.createUnique().'.png');
-
-$filename_qr_code = base64_encode('watsons/'.createUnique().'.png');
-
-
 $upToken = $auth->uploadToken($cfg['qiniu']['bucket']);
 
+
 $update_result = request_qiniu_curl($base64, $filename, $upToken);
-
-$update_result_qr_code = request_qiniu_curl($qr_code, $filename_qr_code, $upToken);
 // var_dump($update_result);exit;
-
 if(isset($upload_result['error'])) {
     $ret['errcode'] = 5;
     $ret['errmsg'] = '上传失败';
@@ -92,25 +48,16 @@ if(isset($upload_result['error'])) {
 
 $img_url = 'http://cdn.yscase.com/'.$update_result['key'];
 
-$img_url_qr_code= 'http://cdn.yscase.com/'.$update_result_qr_code['key'];
 
-$new_data = [
-    'openid' => $openid,
-    'content' => $content,
-    'imageUrl' => $img_url,
-    'qr_code' => $img_url_qr_code
+$results = $db->rawQuery("UPDATE receipts SET `photo_url` = '$img_url' WHERE id = $id");
 
-];
+$ret['results'] = $results;
 
-
-$results = $db->insert ('horse',$new_data);
-
-if(!$results) {
+if($results) {
     $ret['errcode'] = 6;
     $ret['errmsg'] = '保存失败，稍后再试';
     output($ret);
 }
-
 
 $ret['errcode'] = 0;
 $ret['errmsg'] = '保存成功';
@@ -147,3 +94,6 @@ function request_qiniu_curl($post_string, $filename, $upToken) {
 
     return json_decode($data, true);
 }
+
+
+

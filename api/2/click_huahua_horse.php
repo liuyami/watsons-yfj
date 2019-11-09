@@ -4,7 +4,7 @@
  *  点击花花的绘马
  */
 require '../bootstrap.php';
-$openid  = isset($_SESSION[SESSION_PREFIX.'openid']) ? trim($_SESSION[SESSION_PREFIX.'openid']) : "oCQj_wvYa4jOMoNdF7WPtCWqD85U";
+$openid  = isset($_SESSION[SESSION_PREFIX.'openid']) ? trim($_SESSION[SESSION_PREFIX.'openid']) : "oo0SAv2keF4WpbKuAhsl7s1d6Trk";
 
 if(!$openid){
     $ret['errcode'] = 1;
@@ -21,6 +21,7 @@ if($results) {
     $ret['errmsg'] = '该用户已经点击过花花的绘马';
     output($ret);
 }
+
 //   添加点击记录
 $results = $db->insert ('horse_huahua_record',Array ("openid" => $openid));
 //   爱心值+1

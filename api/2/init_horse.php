@@ -6,7 +6,7 @@ require '../bootstrap.php';
 require 'Page.php';
 //$_POST = json_decode(file_get_contents('php://input'), true);
 
-$openid  = isset($_SESSION[SESSION_PREFIX.'openid']) ? trim($_SESSION[SESSION_PREFIX.'openid']) : "oCQj_wvYa4jOMoNdF7WPtCWqD85U";
+$openid  =    isset($_SESSION[SESSION_PREFIX.'openid']) ? trim($_SESSION[SESSION_PREFIX.'openid']) : "oo0SAv2keF4WpbKuAhsl7s1d6Trk";
 $pageindex  = isset($_GET['pageindex']) ? trim($_GET['pageindex']) : null;
 
 if(!$openid){
@@ -38,19 +38,33 @@ if(!empty($bool_click_huahua)) {
 }
 
 /*  获取总数 */
-$count = $db->getOne ("horse", "count(*) count");
+//spotvalue
+
+/*$db->where("spotvalue", '1');
+$count = $db->getOne ("horse", "count(*) count")->where('');*/
+
+$count = $db->rawQuery("SELECT count(*) as count  FROM `horse` WHERE opentype= 1");
 
 //每页展示的数据
 $pageSize=9;
-$page = new Page($count['count'],$pageSize);
+$page = new Page($count[0]['count'],$pageSize);
 
 if(!empty($pageindex)){
     $page->setPage($pageindex);
 }
+
+
 $pagecount=$page->getPagecount();
 $startRow=$page->getStartRow();
 
-$result = $db->rawQuery("SELECT *FROM `horse` ORDER BY `spotvalue` desc  LIMIT $startRow,$pageSize");
+
+$result = $db->rawQuery("SELECT *FROM `horse` WHERE opentype=1  ORDER BY `spotvalue` desc  LIMIT $startRow,$pageSize");
+
+
+if(!$page->last && $page->getPage() == $pagecount){
+    $result = $db->rawQuery("SELECT *FROM `horse` WHERE opentype=1  ORDER BY `spotvalue` desc  LIMIT $page->needLastRow,$pageSize");
+
+}
 
 /* 查询出用户点赞过的 绘马id */
 $horse_id = $db->rawQuery("SELECT  horse_id FROM `horse_record` where `openid` ='$openid'");
@@ -67,16 +81,19 @@ if(!empty($horse_id)){
     }
 }
 
+
+array_unique();
+
+
 for ($i=0;$i<count($result);$i++){
      if(empty($result[$i]['status'])){
          $result[$i]['status']=0;
      };
 }
 
-
-
 $ret['errcode'] = 0;
 $ret['errmsg'] = '获取成功';
+$ret['count'] = $count[0]['count'];
 // 总页数
 $ret['pagecount']=$pagecount;
 // 当前页数

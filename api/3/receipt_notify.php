@@ -13,7 +13,6 @@ $review_status = isset($post_data['review_status']) && is_numeric($post_data['re
 $timestamp     = isset($post_data['timestamp']) && is_numeric($post_data['timestamp']) ? intval($post_data['timestamp']) : null;
 $sign          = isset($post_data['sign']) ? trim($post_data['sign']) : null;
 
-
 if(!$openid){
     $ret['errcode'] = 1;
     $ret['errmsg'] = 'OpenID不能为空';
@@ -43,6 +42,7 @@ if(!$timestamp){
     $ret['errmsg'] = '时间戳不能为空且只能是数字';
     output($ret);
 }
+
 $sign_arr = [
     'openid'        => $openid,
     'order_id'      => $order_id,

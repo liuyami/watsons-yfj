@@ -44,7 +44,7 @@ if($user) {
     $_SESSION[SESSION_PREFIX.'avatar'] = $user['avatar'];
     $_SESSION[SESSION_PREFIX.'nickname'] = $user['nickname'];
     
-    redirect('../index.html?scene='.$scene);
+    redirect('../index.php?scene='.$scene);
 
 } else {
     /**
@@ -67,5 +67,5 @@ if($user) {
 
     //var_dump($id);exit;
 
-    redirect('../index.html?scene='.$scene);
+    redirect('../index.php?scene='.$scene);
 }
